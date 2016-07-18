@@ -290,7 +290,7 @@ class: center, middle
 
 http://gulpjs.com/
 
-Uses streams, therefore performance is better that of Grunt.  
+Uses streams, therefore performance is better that of Grunt.
 Less configurations, more javascript code.
 
 ### latest version
@@ -307,6 +307,54 @@ npm install -g gulp-cli
 
 ```bash
 npm install gulp --save-dev
+```
+
+---
+
+# gulp example
+
+### lets require all needed packages
+```javascript
+
+// load plugins
+
+const gulp = require('gulp');
+const del = require('del');
+const plumber = require('gulp-plumber');
+const rename = require('gulp-rename');
+const sass = require('gulp-sass');
+const postcss = require('gulp-postcss');
+const autoprefixer = require('autoprefixer');
+const cssnano = require('cssnano');
+```
+
+---
+
+# gulp example
+
+### now create some simple tasks
+
+```javascript
+
+// clean
+gulp.task('clean:styles', () => {
+  return del(['dist/styles']);
+});
+
+// styles
+gulp.task('styles', ['clean:styles'], () => {
+  return gulp.src('src/styles/**/*.scss')
+    .pipe(plumber())
+    .pipe(sass())
+    .pipe(postcss([
+      autoprefixer('last 2 version'),
+      cssnano()
+    ]))
+    .pipe(rename({ suffix: '.min' }))
+    .pipe(gulp.dest('dist/styles'));
+});
+
+gulp.task('default', 'styles');
 ```
 
 ---
