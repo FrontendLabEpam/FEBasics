@@ -40,15 +40,47 @@ class: center, middle
 
 class: center, middle
 
-# First of all lets intall NodeJS (https://nodejs.org/)
-
 ![NodeJS](assets/img/nodejs.png)
 
 ---
 
 class: center, middle
 
-# Tools classification
+# What is NodeJS ? 
+
+---
+
+Node.js is an open-source, cross-platform runtime environment for developing server-side Web applications. 
+Although Node.js is not a JavaScript framework, many of its basic modules are written in JavaScript, and developers can 
+write new modules in JavaScript. The runtime environment interprets JavaScript using Google's V8 JavaScript engine.
+
+Node.js has an event-driven architecture capable of asynchronous I/O. These design choices aim to optimize throughput 
+and scalability in Web applications with many input/output operations, as well as for real-time 
+Web applications (e.g., real-time communication programs and browser games).
+
+.center[![node architecture](assets/img/architecture-node.png)]
+
+---
+
+class: center, middle
+
+![original nodejs presentation](assets/img/original-nodejs-presentation.jpg)
+
+### https://youtu.be/ztspvPYybIY
+
+---
+
+class: center, middle
+
+![event loop](assets/img/event-loop.jpg)
+
+---
+
+class: center, middle
+
+![What the heck is the event loop anyway](assets/img/what-the-heck-is-the-event-loop-anyway.jpg)
+
+### https://youtu.be/8aGhZQkoFbQ
 
 ---
 
@@ -78,16 +110,6 @@ class: center, middle
 ![NPM](assets/img/npm.png)
 
 ---
-# Updating npm
-
-Node comes with npm installed so you should have a version of npm.
-However, npm gets updated more frequently than Node does, so you'll want to make sure it's the latest version.
-
-```javascript
-npm install npm -g
-```
-
----
 
 class: center, middle
 
@@ -110,6 +132,16 @@ https://www.npmjs.com ?
 https://npms.io
 
 ![npm search alternative](assets/img/npm-search-alternative.jpg)
+
+---
+# Updating npm
+
+Node comes with npm installed so you should have a version of npm.
+However, npm gets updated more frequently than Node does, so you'll want to make sure it's the latest version.
+
+```javascript
+npm install npm -g
+```
 
 ---
 
@@ -208,9 +240,23 @@ bower install http://example.com/script.js // URL
 
 class: center, middle
 
+#How to deal with versioning ?
+
+---
+
+# NPM semver calculator
+
+https://semver.npmjs.com/
+
+![NPM semver calculator](assets/img/npm-semver-calculator.jpg)
+
+---
+
+class: center, middle
+
 .title[
 JS Tools
-# Task Runners
+# Build and Automation Tools
 ]
 
 ---
@@ -361,6 +407,14 @@ gulp.task('default', 'styles');
 
 class: center, middle
 
+## https://github.com/johnpapa/gulp-patterns
+
+![gulp-patterns](assets/img/gulp-patterns.jpg)
+
+---
+
+class: center, middle
+
 .title[
 JS Tools
 # Package Bundlers
@@ -459,15 +513,6 @@ module.exports = {
 ```bash
 webpack
 ```
-
----
-
-class: center, middle
-
-.title[
-JS Tools
-# Scaffolding
-]
 
     </textarea>
 <!-- ================== End of Slides ================== -->
