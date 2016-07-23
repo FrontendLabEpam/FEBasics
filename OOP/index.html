@@ -284,11 +284,11 @@ alert(clock.getHours()); // 12
 # Encapsulation in ES2015
 
 ```javascript
-let _hours = Symbol();
-let _minutes = Symbol();
+const _hours = Symbol('hours');
+const _minutes = Symbol('minutes');
 
 class Clock {
-  constructor (hours, minutes) {
+  constructor (hours = 0, minutes = 0) {
     this[_hours] = hours;
     this[_minutes] = minutes;
   }
@@ -309,6 +309,284 @@ console.log(clock._hours); // undefined
 //But...
 console.log(clock[_hours]); // 10 :( maybe WeakMap?
 ```
+---
+
+# Encapsulation in ES2015
+
+```javascript
+// clock.js
+const _hours = Symbol('hours');
+const _minutes = Symbol('minutes');
+
+export default class Clock {
+  constructor (hours = 0, minutes = 0) {
+    this[_hours] = hours;
+    this[_minutes] = minutes;
+  }
+  set hours(hours) {
+    this[_hours] = hours;
+  }
+  get hours () {
+    return this[_hours];
+  }
+}
+// main.js
+import Clock from './clock'
+
+var clock = new Clock(12, 30);
+console.log(clock.hours); // 12
+
+clock.hours = 10;
+console.log(clock.hours); // 10
+console.log(clock._hours); // undefined
+```
+
+---
+
+class: center, middle
+
+.title[
+  Front-end training
+  # Polymorphism
+]
+
+---
+
+# Polymorphism in JS
+
+Objects in ECMAScript are polymorphic in several meanings.
+
+"polymorphism" describes the idea that a general behavior from a parent class can be overridden in
+a child class to give it more specifics. In fact, relative polymorphism lets us reference the base
+behavior from the overridden behavior.
+
+# Example
+
+```javascript
+
+class Cat {
+
+  voice() {
+    console.log('meow')
+  }
+}
+
+class Tiger extends Cat {
+
+  voice() {
+    console.log('meow !!!')
+  }
+}
+
+```
+
+This technique is called "polymorphism", or "virtual polymorphism".
+
+---
+
+# Polymorphism in JS
+
+Another aspect of polymorphism is that a method name can have multiple definitions at different
+levels of the inheritance chain, and these definitions are automatically selected as appropriate when
+resolving which methods are being called.
+
+For example, one function can be applied to different objects, just like it would be the native
+characteristic of an object (because `this` value determinate on entering the execution context):
+
+```javascript
+function test(o) {
+  alert(this.a, this.b);
+}
+
+var o1 = { a: 10, b: 20 };
+var o2 = { a: 100, b: 200 };
+
+test.call(o1); // 10, 20
+test.call(o2); // 100, 200
+
+var a = 1;
+var b = 2;
+test(); // 1, 2
+```
+
+---
+
+class: center, middle
+
+.title[
+  Front-end training
+  # Inheritance
+]
+
+---
+
+# OOP models
+
+.columns[.col-50[
+*** Prototype based model (Javascript) ***
+.litle[
+- the basic concept is an object;
+- objects do not have the strict classes which describe
+their structure and behavior; objects do not need
+classes;
+- objects are fully dynamic and mutable (and in the
+theory can completely mutate from one type into
+another);
+- however, not having classes, objects can have
+prototypes to which they can delegate if cannot answer
+the message themselves;
+- the object prototype can be changed at any moment at
+runtime;
+- in delegation based model changing prototype’s
+characteristics will affect on all objects related with this
+prototype;
+- instances can have unique behavior (properties and methods).
+]
+]
+.col-50[
+*** Class based model (C++, Java) ***
+.litle[
+- to create an object first it is necessary to define its
+class;
+- the object will be created in its own classification
+“image and similarity” (structure and behavior);
+- being created, the class cannot to change a set of
+characteristics (neither properties, nor methods) of
+their instances;
+- classes-descendants (and accordingly, objects created
+from them) contain all properties of an inheritance
+chain (even if some of these properties are not
+necessary to the concrete inherited class);
+- instances can't have unique behavior.
+]
+]]
+
+---
+
+# Prototype
+
+Unlike "traditional" class-based approach,
+JS uses constructors and `[[prototype]]` objects as default extension mechanism.
+
+You need to assign prototype object to constructor property called `prototype`,
+and when you create a new object - this object will be automatically assigned as a prototype:
+
+```javascript
+var someObject = {
+  name: 'test'
+}
+
+// create an object linked to `someObject`
+var newObject = Object.create(someObject)
+
+newObject.name; // 'test'
+```
+
+So, we have someObject that is now `[[Prototype]]` linked to newObject. Clearly newObject.name doesn't
+actually exist, but nevertheless, the property access succeeds (being found on anotherObject instead) and
+indeed finds the value test.
+
+---
+
+class: center, middle
+
+![simple-chain](assets/img/simple-chain.jpg)
+
+---
+
+class: center, middle
+
+![chain](assets/img/chain.png)
+
+---
+
+# But where exactly does the [[Prototype]] chain "end"?
+
+The top-end of every *normal* `[[Prototype]]` chain is the built-in `Object.prototype`. This object
+includes a variety of common utilities used all over JS, because all normal objects in JavaScript "descend from"
+the `Object.prototype` object.
+
+Some of them:
+* `Object.prototype.toString()` - Returns a string representation of the object.
+* `Object.prototype.hasOwnProperty()` - Returns a boolean indicating whether an object contains the
+specified property as a direct property of that object and not inherited through the prototype chain.
+* `Object.prototype.isPrototypeOf()` - Returns a boolean indication whether the specified object is in
+the prototype chain of the object this method is called upon.
+
+---
+
+# Inheritance example
+
+```javascript
+var Person = function(name) {
+  this.name = name;
+};
+Person.prototype.greet = function() {
+  console.log('Hi, I am ' + this.name);
+};
+var Employee = function(name, title) {
+  Person.call(this, name);
+  this.title = title;
+};
+Employee.prototype = Object.create(Person.prototype);
+Employee.prototype.constructor = Employee;
+Employee.prototype.greet = function() {
+  console.log('Hi, I am ' + this.name + ', the ' + this.title);
+};
+var Customer = function(name, money) {
+  Person.call(this, name);
+  this.money = money;
+};
+Customer.prototype = Object.create(Person.prototype);
+Customer.prototype.constructor = Customer;
+
+var bob = new Employee('Bob', 'Builder'); bob.greet(); // Hi, I am Bob, the Builder
+var joe = new Customer('Joe', 2000);  joe.greet(); // Hi, I am Joe
+var rg = new Employee('Red Green', 'Handyman'); rg.greet(); // Hi, I am Red Green, the Handyman
+```
+
+---
+
+# ES2015 version
+
+```javascript
+class Person {
+  constructor(name) {
+    this.name = name;
+  }
+  greet() {
+    console.log('Hi, I am ' + this.name);
+  }
+}
+class Employee extends Person {
+  constructor(name, title) {
+    super(name);
+    this.title = title;
+  }
+  greet() {
+    console.log('Hi, I am ' + this.name + ', the ' + this.title);
+  }
+}
+class Customer extends Person {
+  constructor(name, money) {
+    super(name);
+    this.money = money;
+  }
+}
+var bob = new Employee('Bob', 'Builder'); bob.greet(); // Hi, I am Bob, the Builder
+var joe = new Customer('Joe', 2000);  joe.greet(); // Hi, I am Joe
+var rg = new Employee('Red Green', 'Handyman'); rg.greet(); // Hi, I am Red Green, the Handyman
+```
+
+---
+
+In JavaScript, we don't make *copies* from one object ("class") to another ("instance"). We make *links*
+between objects. For the `[[Prototype]]` mechanism, visually, the arrows move from right to left, and from bottom to top.
+
+![figure](assets/img/fig-1.jpg)
+
+This mechanism is often called "prototypal inheritance", which is commonly said to be the dynamic-language
+version of "classical inheritance".
 
     </textarea>
 <!-- ================== End of Slides ================== -->
