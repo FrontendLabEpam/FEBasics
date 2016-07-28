@@ -29,6 +29,399 @@ class: center, middle
   # AJAX
 ]
 
+---
+
+# AJAX
+
+AJAX(Asynchronous JavaScript and XML) is only a name given to a set of tools that were previously existing.
+The main part is XMLHttpRequest, a server-side object usable in JavaScript, that was implemented into Internet Explorer since the 4.0 version.
+
+AJAX is a technique for creating fast and dynamic web pages.
+
+AJAX allows web pages to be updated asynchronously by exchanging small amounts of data with the server behind the scenes.
+This means that it is possible to update parts of a web page, without reloading the whole page.
+
+---
+
+class: center, middle
+
+# But how we deal with asynchronous code ?
+
+---
+
+Consider we have simple `someAsyncFunc` function.
+
+```javascript
+function someAsyncFunc() {
+  // async code
+  // maybe some IO operation
+}
+
+try {
+  var data = someAsyncFunc();
+  console.log(data); // undefined
+} catch (e) {
+  // error handling
+}
+
+```
+
+We make an asynchronous operations *now*, and we won't get the results back until *later*.
+
+---
+
+# Callbacks
+
+The simplest (but definitely not only, or necessarily even best!) way of "waiting"
+from now until later is to use a function, commonly called a callback function:
+
+```javascript
+
+var callback = function(error, data) {
+  if (error) {
+    // error handling
+    return;
+  }
+
+  console.log(data); // Yay, we have some data
+};
+
+someAsyncFunc(callback);
+```
+
+Callbacks are just the name of a convention for using JavaScript functions. There isn't
+a special thing called a 'callback' in the JavaScript language, it's just a convention.
+
+---
+
+class: center, middle
+
+> # There is always a "but" in this imperfect world. -- Anne Bronte
+
+---
+
+# What is "callback hell"?
+
+
+See the pyramid shape and all the `})`` at the end?
+This is affectionately known as callback hell.
+
+```javascript
+fs.readdir(source, function (err, files) {
+  if (err) {
+    console.log('Error finding files: ' + err)
+  } else {
+    files.forEach(function (filename, fileIndex) {
+      console.log(filename)
+      gm(source + filename).size(function (err, values) {
+        if (err) {
+          console.log('Error identifying file size: ' + err)
+        } else {
+          console.log(filename + ' : ' + values)
+          aspect = (values.width / values.height)
+          widths.forEach(function (width, widthIndex) {
+            height = Math.round(width / aspect)
+            console.log('resizing ' + filename + 'to ' + height + 'x' + height)
+            this.resize(width, height).write(dest + 'w' + width + '_' + filename, function(err) {
+              if (err) console.log('Error writing file: ' + err)
+            })
+          }.bind(this))
+        }
+      })
+    })
+  }
+})
+```
+
+---
+
+# Promises
+
+The current JavaScript Promise specifications date back to 2012 and available
+from ES6 - however Promises were not invented by the JavaScript community.
+The term comes from Daniel P. Friedman from 1976.
+
+**A promise represents the eventual result of an asynchronous operation**
+
+The previous example with Promises may look like this:
+
+```javascript
+someAsyncFunc()
+  .then(function(data) {
+    console.log(data);
+  })
+  .catch(function(error) {
+    // error handling
+  })
+```
+
+---
+
+class: center, middle
+
+# Back to AJAX
+
+---
+
+# AJAX transports
+
+There ara couple Javascript object or HTML tags that can provide server-client comunication:
+
+- fetch
+
+- XMLHttpRequest
+
+- Iframe
+
+- Script
+
+---
+
+# Data formats
+
+- Text
+  ```
+  elem.innerText = xhr.responseText
+  ```
+
+- HTML
+  ```
+  elem.innerHTML = xhr.responseText
+  ```
+
+- XML
+  Server should set "Content-Type: text/xml"
+  ```
+  var xml = xhr.responseXML
+  ```
+
+- JSON (Javascript Object Notation)
+  ```
+  var obj = JSON.parse(responseText);
+  ```
+
+- JSONP
+  ```
+  callback({{ "response": { "size": "370", "price":"200" }}})
+  ```
+
+---
+
+class: center, middle
+
+.title[
+  Front-end training
+  # XMLHttpRequest
+]
+
+---
+
+# XMLHttpRequest
+
+**XMLHttpRequest** is a JavaScript object that was designed by Microsoft and adopted by Mozilla,
+Apple, and Google. It's now being standardized in the W3C. It provides an easy way to retrieve
+data at a URL. Despite its name, ***XMLHttpRequest*** can be used to retrieve any type of data,
+not just XML, and it supports protocols other than HTTP (including file and ftp).
+
+---
+
+# XMLHttpRequest usage
+
+```javascript
+function ajax(method, url, args) {
+  return new Promise(function(resolve, reject) {
+    var xhr = new XMLHttpRequest();
+
+    xhr.onload = onLoad;
+    xhr.onerror = onError;
+
+    xhr.open(method, url);
+    xhr.send(args);
+
+    function onLoad() {
+      if (this.status >= 200 && this.status < 300) {
+        // Performs the function "resolve" when this.status is equal to 2xx
+        resolve(this.response);
+      } else {
+        // Performs the function "reject" when this.status is different than 2xx
+        reject(this.statusText);
+      }
+    };
+    function onError() {
+      reject(this.statusText);
+    };
+  });
+}
+```
+
+---
+
+# Example:
+
+```javascript
+ajax('GET', 'https://api.github.com/users/nodejs')
+  .then(function(response) {
+    console.log(response); // JSON string
+  })
+  .catch(function(error) {
+    console.log('GitHub is down 😢');
+    console.log('Request failed', error);
+  })
+```
+
+---
+
+# XMLHttpRequest event handlers
+
+||||
+|--- |--- |
+| readystatechange |  The readyState attribute changes value, except when it changes to UNSENT.  |
+| loadstart  |  The fetch initiates. |
+| progress |  Transmitting data. |
+| abort  |  When the fetch has been aborted. For instance, by invoking the abort() method. |
+| error  |  The fetch failed.  |
+| load |  The fetch succeeded. |
+| timeout  |  The author specified timeout has passed before the fetch completed.  |
+| loadend  |  The fetch completed (success or failure).  |
+
+---
+
+# XMLHttpRequest FormData
+
+FormData objects provide a way to easily construct a set of key/value pairs representing
+form fields and their values, which can then be easily sent using the ***XMLHttpRequest send()*** method.
+
+```html
+<form name="user">
+    <input type="text" name="firstname" value="Vasya"/>
+    <input type="file" name="doc"/>
+</form>
+```
+
+```javascript
+// create object from form
+var form = document.forms.user;
+var formData = new FormData(form);
+// add another kay-value pair
+formData.append("lastname", "Pupkin");
+// send
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "/url");
+xhr.send(formData);
+```
+
+.small[
+***Browsers***: all, except IE< 10
+]
+
+---
+
+class: center, middle
+
+.title[
+  Front-end training
+  # Fetch API
+]
+
+---
+
+# Fetch API
+
+XHR is a bit overcomplicated. The Fetch API provides an interface for fetching
+resources (including across the network). It will seem familiar to anyone who has
+used XMLHttpRequest, but the new API provides a more powerful and flexible feature set.
+
+### Basic `fetch` Usage
+
+```javascript
+fetch('https://api.github.com/users/nodejs')
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(json) {
+    console.log(json);
+  })
+  .catch(function(error) {
+    console.log('GitHub is down 😢');
+    console.log('Request failed', error);
+  });
+```
+
+---
+
+# POST Request
+
+```javascript
+fetch('\url', {
+    method: 'post',
+    body: new FormData(document.forms.user)
+  })
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function (data) {
+    console.log('Request succeeded with JSON response', data);
+  })
+  .catch(function(error) {
+    console.log('Request failed', error);
+  });
+```
+
+---
+
+class: center, middle
+
+![caniuse fetch](assets/img/fetch-caniuse.jpg)
+
+---
+
+class: center, middle
+
+.title[
+  Front-end training
+  # Security
+]
+
+---
+
+# SOP &amp; CORS
+
+The [same-origin policy](https://en.wikipedia.org/wiki/Same-origin_policy) restricts
+how a document or script loaded from one origin can interact with a resource from
+another origin. It is a critical security mechanism for isolating potentially
+malicious documents.
+
+A resource makes a [cross-origin request](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
+when it requests a resource from a different domain than the one which the first
+resource itself serves.
+---
+
+# JSONP
+
+**JSONP** (JSON with Padding) is a technique used by web developers to overcome the cross-domain restrictions imposed by browsers to allow data to be retrieved from systems other than the one the page was served by.
+
+```html
+<script
+  type="application/javascript"
+  src="https://api.github.com/users/nodejs?callback=parseResponse">
+</script>
+```
+
+```javascript
+function parseResponse(response) {
+  console.log(response.data);
+}
+
+var script = document.createElement('script');
+script.type = 'application/javascript';
+script.src = 'https://api.github.com/users/nodejs?callback=parseResponse';
+
+document.body.appendChild(script)
+```
+
+The typical use of JSONP provides cross-domain access to an existing JSON API,
+by wrapping a JSON payload in a function call.
+
     </textarea>
 <!-- ================== End of Slides ================== -->
 
